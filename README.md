@@ -1,4 +1,4 @@
-#mc-change-world-owner
+# mc-change-world-owner
 
 Program for changing Minecraft world owner.
 
