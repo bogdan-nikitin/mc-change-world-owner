@@ -10,8 +10,9 @@ from minecraft_path import minecraft_path
 from player_info import get_players_info
 from ui.base_ui import BaseUI
 from ui.tui import TUI
+from localization import set_lang_in_environ, LANGUAGES
 
-CLI_DESCRIPTION = '''Program for changing Minecraft world owner.
+CLI_DESCRIPTION = '''Program for changing the Minecraft world owner.
 
 This program is useful when your friend sends you his world in which you played
 together over a LAN, and now you want to continue playing as your character.
@@ -41,6 +42,9 @@ path to the new owner's player data file (. dat)'''
 WORLD_HELP = '''Name or path to the level.dat of the world whose owner 
 you want to change'''
 MC_PATH_HELP = 'Path to the Minecraft instance. By default is %(default)s'
+# TODO: mention the GUI when it will be implemented
+LANG_HELP = '''Language of the program. Does not affect the CLI.
+The system language is used by default'''
 
 
 class ExitCode(enum.Enum):
@@ -168,12 +172,16 @@ class CLI(BaseUI):
             type=lambda s: pathlib.Path(s),
             help=MC_PATH_HELP, dest='mc_path'
         )
+        self.__parser.add_argument(
+            '--lang', choices=LANGUAGES, help=LANG_HELP, dest='lang'
+        )
 
     def __parse_args(self):
         self.__args = self.__parser.parse_args()
 
     def choose_ui(self) -> BaseUI:
         self.__parse_args()
+        set_lang_in_environ(self.__args.lang)
         if self.__args.action != self.__default_action or self.__args.uuid:
             return self
         # TODO: Return GUI

@@ -1,43 +1,16 @@
-import argparse
 import contextlib
-import enum
-import pathlib
-import sys
 import gettext
+import pathlib
 
 from change_world_owner import copy_player_data_to_level_dat
 from minecraft_path import minecraft_path
 from player_info import get_players_info
 from ui.base_ui import BaseUI
+from localization import LOCALE_PATH
 
 
-gettext.install('tui', './lang')
-
-
-# def get_input(prompt,
-#               correctness_predicates=tuple(),
-#               incorrectness_predicates=tuple(), convert=None):
-#     while True:
-#         value = input(prompt)
-#         if convert:
-#             value = convert(value)
-#         for predicate in predicates:
-#             msg = predicate(value)
-#             if msg:
-#                 print(msg)
-#                 break
-#         else:
-#             return value
-
-
-# def is_dir_predicate(path):
-#     if not path.is_dir():
-#         return gettext.gettext('Path must be directory')
-#
-#
-# def is_path_exist_predicate(path):
-#     if not path.exists():
-#         return gettext.gettext('Path must exist')
+gettext.textdomain('tui')
+gettext.bindtextdomain('tui', LOCALE_PATH)
 
 
 class TUI(BaseUI):
@@ -63,11 +36,9 @@ class TUI(BaseUI):
     def _get_worlds(mc_path):
         return list((mc_path / 'saves').iterdir())
 
-    # @staticmethod
-    # def _print_world(world):
-
     @staticmethod
     def _print_worlds(worlds):
+        print(gettext.gettext('List of worlds:'))
         worlds_count = len(worlds)
         padding = len(str(worlds_count)) + 1
         for i in range(worlds_count):
@@ -98,15 +69,27 @@ class TUI(BaseUI):
 
     @staticmethod
     def _print_players_info(players_info):
+        print(gettext.gettext('List of players:'))
         players_count = len(players_info)
         padding = len(str(len(players_info))) + 2
+
+        uuid_text = 'UUID: '
+        nickname_text = gettext.gettext('Nickname: ')
+        xp_text = gettext.gettext('XP: ')
+        xyz_text = 'XYZ: '
+        max_text_len = max(map(len,
+                               (uuid_text, nickname_text, xp_text, xyz_text)))
+        uuid_text = uuid_text.ljust(max_text_len)
+        nickname_text = nickname_text.ljust(max_text_len)
+        xp_text = xp_text.ljust(max_text_len)
+        xyz_text = xyz_text.ljust(max_text_len)
         for i in range(players_count):
-            print(f'{i + 1}.'.ljust(padding - 1, ' '), 'UUID:    ',
+            print(f'{i + 1}.'.ljust(padding - 1, ' '), uuid_text,
                   players_info[i].uuid.stem)
-            print(' ' * padding + 'Nickname:',
+            print(' ' * padding + nickname_text,
                   players_info[i].nickname or '???')
-            print(' ' * padding + 'XP:      ', players_info[i].xp)
-            print(' ' * padding + 'XYZ:     ',
+            print(' ' * padding + xp_text, players_info[i].xp)
+            print(' ' * padding + xyz_text,
                   ' '.join(map(str, players_info[i].pos)))
 
     @staticmethod
@@ -143,6 +126,8 @@ class TUI(BaseUI):
 
     def main_loop(self):
         with TUI._handle_error():
+            print(gettext.gettext('Welcome to the program for '
+                                  'changing the Minecraft world owner!'))
             mc_path = TUI._get_mc_path()
             world_path = TUI._get_world_path(mc_path)
             if not world_path:
@@ -156,5 +141,3 @@ class TUI(BaseUI):
             uuid_dat = TUI._get_uuid_dat(world_path)
             copy_player_data_to_level_dat(level_dat, uuid_dat)
             print(gettext.gettext('World owner changed successfully!'))
-
-

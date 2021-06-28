@@ -1,0 +1,99 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2021-06-29 11:33+0300\n"
+"PO-Revision-Date: 2021-06-29 11:33+0300\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.0\n"
+"X-Poedit-Basepath: ../../..\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: ui/tui.py:20
+msgid ""
+"Enter the path to Minecraft (leave the field empty to use the default "
+"value): "
+msgstr ""
+"Введите путь к Minecraft (оставьте поле пустым, чтобы использовать значение "
+"по умолчанию): "
+
+#: ui/tui.py:29
+msgid "Path must be existing directory"
+msgstr "Путь должен быть существующим каталогом"
+
+#: ui/tui.py:31
+msgid "Directory must contain \"saves\" folder"
+msgstr "Каталог должен содержать папку \"saves\""
+
+#: ui/tui.py:44
+msgid "List of worlds:"
+msgstr "Список миров:"
+
+#: ui/tui.py:56
+msgid "Enter the name of the world or its number: "
+msgstr "Введите название мира или его номер: "
+
+#: ui/tui.py:65
+msgid "World num out of range"
+msgstr "Номер мира вне диапазона значений"
+
+#: ui/tui.py:71
+msgid "No world with such name"
+msgstr "Нет мира с таким названием"
+
+#: ui/tui.py:75
+msgid "List of players:"
+msgstr "Список игроков:"
+
+#: ui/tui.py:80
+msgid "Nickname: "
+msgstr "Ник: "
+
+#: ui/tui.py:81
+msgid "XP: "
+msgstr "Уровень: "
+
+#: ui/tui.py:103
+msgid ""
+"Enter the UUID or number of the player you want to make the owner of the "
+"world: "
+msgstr ""
+"Введите UUID или номер игрока, которого вы хотите сделать владельцем мира: "
+
+#: ui/tui.py:113
+msgid "Player num out of range"
+msgstr "Номер игрока вне диапазона значений"
+
+#: ui/tui.py:118
+msgid "No such UUID"
+msgstr "Нет такого UUID"
+
+#: ui/tui.py:127
+msgid "An error occurred while the program was running: {}"
+msgstr "Во время работы программы произошла ошибка: {}"
+
+#: ui/tui.py:132
+msgid "Welcome to the program for changing the Minecraft world owner!"
+msgstr "Добро пожаловать в программу для смены владельца мира Minecraft!"
+
+#: ui/tui.py:137
+msgid "No worlds found"
+msgstr "Никаких миров не найдено"
+
+#: ui/tui.py:141
+msgid "World must contain level.dat file"
+msgstr "Мир должен содержать файл level.dat"
+
+#: ui/tui.py:143
+msgid "Getting players info..."
+msgstr "Получение информации об игроках..."
+
+#: ui/tui.py:146
+msgid "World owner changed successfully!"
+msgstr "Хозяин мира изменён успешно!"
