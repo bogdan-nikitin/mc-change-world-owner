@@ -4,7 +4,7 @@ import abc
 # from change_world_owner import copy_player_data_to_level_dat
 
 
-class BaseUi(abc.ABC):
+class BaseUI(abc.ABC):
     # def change_world_owner(self):
     #     # mc_path = self.get_mc_path()
     #     # saves = (mc_path / 'saves').iterdir()
