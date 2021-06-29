@@ -8,9 +8,11 @@ import sys
 from change_world_owner import copy_player_data_to_level_dat
 from minecraft_path import minecraft_path
 from player_info import get_players_info
-from ui.base_ui import BaseUi
+from ui.base_ui import BaseUI
+from ui.tui import TUI
+from localization import set_lang_in_environ, LANGUAGES
 
-CLI_DESCRIPTION = '''Program for changing Minecraft world owner.
+CLI_DESCRIPTION = '''Program for changing the Minecraft world owner.
 
 This program is useful when your friend sends you his world in which you played
 together over a LAN, and now you want to continue playing as your character.
@@ -40,6 +42,9 @@ path to the new owner's player data file (. dat)'''
 WORLD_HELP = '''Name or path to the level.dat of the world whose owner 
 you want to change'''
 MC_PATH_HELP = 'Path to the Minecraft instance. By default is %(default)s'
+# TODO: mention the GUI when it will be implemented
+LANG_HELP = '''Language of the program. Does not affect the CLI.
+The system language is used by default'''
 
 
 class ExitCode(enum.Enum):
@@ -52,23 +57,7 @@ def print_to_stderr(*args, **kwargs):
     print(*args, **kwargs, file=sys.stderr)
 
 
-@contextlib.contextmanager
-def handle_cli_error():
-    try:
-        yield
-    except CommandSyntaxLineError as e:
-        exception = e
-        exit_code = ExitCode.COMMAND_LINE_SYNTAX_ERROR
-    except Exception as e:
-        exception = e
-        exit_code = ExitCode.OTHER_ERROR
-    else:
-        return
-    print_to_stderr(exception)
-    sys.exit(exit_code.value)
-
-
-class CommandSyntaxLineError(Exception):
+class CommandLineSyntaxError(Exception):
     pass
 
 
@@ -76,14 +65,7 @@ class BadWorldFormatError(Exception):
     pass
 
 
-def print_player_info(player_info):
-    print('* UUID:    ', player_info.uuid.stem)
-    print('  Nickname:', player_info.nickname or '???')
-    print('  XP:      ', player_info.xp)
-    print('  XYZ:     ', ' '.join(map(str, player_info.pos)))
-
-
-class Cli(BaseUi):
+class CLI(BaseUI):
     def __init__(self):
         self.__parser = argparse.ArgumentParser(description=CLI_DESCRIPTION)
         self.__args = None
@@ -91,21 +73,44 @@ class Cli(BaseUi):
         self.__default_action = next(iter(self.__actions))
         self.__init_parser()
 
-    def get_worlds(self):
+    @staticmethod
+    @contextlib.contextmanager
+    def _handle_cli_error():
+        try:
+            yield
+        except CommandLineSyntaxError as e:
+            exception = e
+            exit_code = ExitCode.COMMAND_LINE_SYNTAX_ERROR
+        except Exception as e:
+            exception = e
+            exit_code = ExitCode.OTHER_ERROR
+        else:
+            return
+        print_to_stderr(exception)
+        sys.exit(exit_code.value)
+
+    @staticmethod
+    def _print_player_info(player_info):
+        print('* UUID:    ', player_info.uuid.stem)
+        print('  Nickname:', player_info.nickname or '???')
+        print('  XP:      ', player_info.xp)
+        print('  XYZ:     ', ' '.join(map(str, player_info.pos)))
+
+    def _get_worlds_action(self):
         for save_path in (self.__args.mc_path / 'saves').iterdir():
             print('*', save_path.stem)
 
-    def get_players_info(self):
+    def _get_players_info_action(self):
         if not self.__args.world:
-            raise CommandSyntaxLineError(
+            raise CommandLineSyntaxError(
                 'You must specify the --world argument '
                 'if action=get-players-info'
             )
         world_path = self.__args.mc_path / 'saves' / self.__args.world
         for info in get_players_info(world_path):
-            print_player_info(info)
+            self._print_player_info(info)
 
-    def change_world_owner(self):
+    def _change_world_owner_action(self):
         # uuid will be specified anyway
         uuid_dat = pathlib.Path(self.__args.uuid)
         if uuid_dat.suffix == '.dat':
@@ -124,7 +129,7 @@ class Cli(BaseUi):
                 level_dat = uuid_dat.parent.parent / 'level.dat'
         else:
             if not self.__args.world:
-                raise CommandSyntaxLineError(
+                raise CommandLineSyntaxError(
                     'You must specify the --world argument '
                     'if the uuid is not .dat file'
                 )
@@ -143,9 +148,9 @@ class Cli(BaseUi):
 
     def _generate_actions(self):
         actions = {
-            'change-owner': self.change_world_owner,  # default
-            'get-worlds': self.get_worlds,
-            'get-players-info': self.get_players_info
+            'change-owner': self._change_world_owner_action,  # default
+            'get-worlds': self._get_worlds_action,
+            'get-players-info': self._get_players_info_action
         }
         return actions
 
@@ -167,17 +172,21 @@ class Cli(BaseUi):
             type=lambda s: pathlib.Path(s),
             help=MC_PATH_HELP, dest='mc_path'
         )
+        self.__parser.add_argument(
+            '--lang', choices=LANGUAGES, help=LANG_HELP, dest='lang'
+        )
 
     def __parse_args(self):
         self.__args = self.__parser.parse_args()
 
-    def choose_ui(self):
+    def choose_ui(self) -> BaseUI:
         self.__parse_args()
+        set_lang_in_environ(self.__args.lang)
         if self.__args.action != self.__default_action or self.__args.uuid:
             return self
-        # TODO: Return another ui
-        raise Exception('Specify --action or --uuid parameters')
+        # TODO: Return GUI
+        return TUI()
 
     def main_loop(self):
-        with handle_cli_error():
+        with self._handle_cli_error():
             self.__actions[self.__args.action]()

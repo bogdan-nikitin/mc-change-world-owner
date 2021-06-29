@@ -1,8 +1,8 @@
-from ui.cli import Cli
+from ui.cli import CLI
 
 
 def main():
-    world_changer = Cli()
+    world_changer = CLI()
     world_changer = world_changer.choose_ui()
     world_changer.main_loop()
 
